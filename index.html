@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#1a2744">
+<title>EKR Income Tax Calculator 2026-27</title>
+</head>
+<body>
+
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-light: #243258;
+    --navy-dark: #111b33;
+    --gold: #c9a227;
+    --gold-light: #e8c04a;
+    --gold-pale: #fdf6e3;
+    --white: #ffffff;
+    --grey-bg: #f5f6f8;
+    --grey-light: #eef0f4;
+    --grey-border: #dde1eb;
+    --text-main: #1a2744;
+    --text-muted: #6b7a99;
+    --green: #1a7a4a;
+    --green-bg: #e8f5ee;
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --font: 'Georgia', serif;
+    --sans: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--grey-bg); color: var(--text-main); }
+  #app { min-height: 100vh; }
+
+  /* HEADER */
+  .header { background: var(--navy); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; border-bottom: 3px solid var(--gold); }
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+  .logo-circle { width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--navy); letter-spacing: 0.5px; font-family: var(--font); }
+  .firm-name { color: var(--white); font-size: 16px; font-weight: 600; letter-spacing: 0.3px; }
+  .firm-sub { color: var(--gold-light); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+  .header-right { color: rgba(255,255,255,0.6); font-size: 12px; text-align: right; }
+  .header-right strong { color: var(--gold-light); font-size: 13px; display: block; }
+
+  /* NAV TABS */
+  .nav-tabs { background: var(--navy-dark); display: flex; gap: 0; overflow-x: auto; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .nav-tab { padding: 13px 18px; color: rgba(255,255,255,0.55); font-size: 13px; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s; user-select: none; }
+  .nav-tab:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+  .nav-tab.active { color: var(--gold-light); border-bottom-color: var(--gold); background: rgba(201,162,39,0.08); }
+
+  /* MAIN */
+  .main { padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* SECTION CARDS */
+  .card { background: var(--white); border: 1px solid var(--grey-border); border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--navy); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 2px solid var(--gold-pale); display: flex; align-items: center; gap: 8px; }
+  .card-title::before { content: ''; width: 3px; height: 16px; background: var(--gold); border-radius: 2px; display: block; }
+
+  /* FORM ELEMENTS */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .form-group input, .form-group select { padding: 8px 10px; border: 1px solid var(--grey-border); border-radius: 6px; font-size: 13px; color: var(--text-main); background: var(--white); outline: none; transition: border 0.2s; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--navy); }
+  .form-group input[type=number] { text-align: right; }
+  .hint { font-size: 11px; color: var(--text-muted); }
+
+  /* SUMMARY WIDGETS */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+  .widget { background: var(--white); border: 1px solid var(--grey-border); border-radius: 10px; padding: 1rem 1.25rem; }
+  .widget-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .widget-value { font-size: 22px; font-weight: 700; color: var(--navy); margin-top: 4px; font-family: var(--font); }
+  .widget-value.gold { color: var(--gold); }
+  .widget-value.green { color: var(--green); }
+  .widget-value.red { color: var(--red); }
+  .widget-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  /* BUTTONS */
+  .btn { padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: var(--navy); color: var(--white); }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-gold { background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-outline { background: transparent; color: var(--navy); border: 1px solid var(--grey-border); }
+  .btn-outline:hover { background: var(--grey-bg); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem; }
+
+  /* REGIME TOGGLE */
+  .regime-toggle { display: flex; gap: 0; border: 1px solid var(--grey-border); border-radius: 8px; overflow: hidden; margin-bottom: 1.25rem; width: fit-content; }
+  .regime-btn { padding: 9px 22px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: var(--white); color: var(--text-muted); transition: all 0.2s; }
+  .regime-btn.active { background: var(--navy); color: var(--white); }
+
+  /* COMPARISON TABLE */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th { background: var(--navy); color: var(--white); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; }
+  .comp-table td { padding: 9px 14px; border-bottom: 1px solid var(--grey-light); }
+  .comp-table tr:hover td { background: var(--grey-bg); }
+  .comp-table .total-row td { font-weight: 700; color: var(--navy); background: var(--gold-pale) !important; border-top: 2px solid var(--gold); }
+  .comp-table .section-row td { background: var(--grey-light); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+  .better { color: var(--green); font-weight: 700; }
+  .worse { color: var(--red); }
+
+  /* BADGE */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-gold { background: var(--gold-pale); color: #7a5c00; }
+  .badge-navy { background: #e8ecf5; color: var(--navy); }
+
+  /* RECOMMENDATION BOX */
+  .rec-box { border-radius: 10px; padding: 1.25rem 1.5rem; display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.25rem; }
+  .rec-box.new { background: #e8f5ee; border: 1px solid #a3d9b8; }
+  .rec-box.old { background: #fff8e8; border: 1px solid var(--gold); }
+  .rec-icon { font-size: 28px; }
+  .rec-title { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .rec-saving { font-size: 20px; font-weight: 700; color: var(--green); font-family: var(--font); }
+  .rec-note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* HRA */
+  .hra-result { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .hra-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--grey-light); font-size: 13px; }
+  .hra-row:last-child { border-bottom: none; font-weight: 700; color: var(--navy); }
+  .hra-highlight { color: var(--green); font-weight: 700; }
+
+  /* SLAB TABLE */
+  .slab-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .slab-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .slab-table th { background: var(--navy); color: var(--white); padding: 8px 12px; text-align: left; font-size: 11px; }
+  .slab-table td { padding: 7px 12px; border-bottom: 1px solid var(--grey-light); }
+  .slab-table .active-slab td { background: var(--gold-pale); font-weight: 600; }
+
+  /* DEDUCTION PROGRESS */
+  .deduction-bar { height: 6px; background: var(--grey-light); border-radius: 3px; margin-top: 5px; }
+  .deduction-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.5s; }
+  .deduction-fill.maxed { background: var(--green); }
+
+  /* PRINT BUTTON AREA */
+  .report-header { background: var(--navy); color: var(--white); padding: 1.5rem; border-radius: 10px; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start; }
+  .report-firm { font-size: 16px; font-weight: 700; }
+  .report-addr { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 4px; }
+  .report-meta { text-align: right; font-size: 12px; color: rgba(255,255,255,0.7); }
+  .report-meta strong { color: var(--gold-light); }
+
+  /* CHART WRAPPER */
+  .chart-wrapper { position: relative; height: 220px; margin-top: 1rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .main { padding: 1rem; }
+    .slab-section { grid-template-columns: 1fr; }
+    .hra-result { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .header { padding: 0 1rem; }
+  }
+
+
+  /* MOBILE OPTIMIZATIONS */
+  @media (max-width: 480px) {
+    .header { height: auto; padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+    .header-right { font-size: 11px; }
+    .header-right strong { font-size: 12px; }
+    .nav-tab { padding: 11px 12px; font-size: 12px; }
+    .main { padding: 10px 10px; }
+    .card { padding: 1rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .widget-value { font-size: 18px; }
+    .comp-table th, .comp-table td { padding: 7px 8px; font-size: 12px; }
+    .slab-section { grid-template-columns: 1fr; }
+    .hra-result { grid-template-columns: 1fr; }
+    .btn { padding: 10px 16px; font-size: 13px; width: 100%; text-align: center; }
+    .btn-row { flex-direction: column; }
+    .regime-toggle { width: 100%; }
+    .regime-btn { flex: 1; padding: 10px 8px; font-size: 12px; }
+    .report-header { flex-direction: column; gap: 1rem; }
+    .report-meta { text-align: left; }
+    input[type=number], input[type=text], input[type=date], select { 
+      font-size: 16px !important; /* prevents iOS zoom */
+      padding: 10px 12px !important;
+    }
+    .logo-area img { height: 40px; }
+  }
+  @media (max-width: 360px) {
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+  /* Touch-friendly tap targets */
+  .nav-tab { min-height: 44px; display: flex; align-items: center; justify-content: center; }
+  .btn { min-height: 44px; }
+  select, input { min-height: 40px; }
+  /* Smooth scrolling on mobile */
+  .nav-tabs { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+  /* Prevent text size adjust on orientation change */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  .amt { font-family: var(--font); }
+  .right { text-align: right; }
+  .separator { height: 1px; background: var(--grey-light); margin: 1rem 0; }
+  .tag-year { background: var(--gold); color: var(--navy); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; }
+</style>
+
+<div id="app">
+  <div class="header">
+    <div class="logo-area">
+      <img src="data:image/jpeg;base64,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" alt="EKR and Associates" style="height:48px; width:auto; object-fit:contain; border-radius:4px;">
+      <div style="color:rgba(255,255,255,0.7); font-size:11px; margin-top:2px;">
+        <div style="font-size:13px; font-weight:600; color:var(--white);">EKR and Associates</div>
+        <div style="color:var(--gold-light); font-size:10px; letter-spacing:1px; text-transform:uppercase;">Chartered Accountants</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <strong>Income Tax Calculator &nbsp;|&nbsp; Tax Year 2026-27</strong>
+      <span>📞 9964767276 &nbsp;|&nbsp; Jayanagar, Bengaluru – 560041</span>
+      <span style="font-size:10px; color:rgba(255,255,255,0.4);">Income Tax Act, 2025</span>
+    </div>
+  </div>
+
+  <div class="nav-tabs" id="navTabs">
+    <div class="nav-tab active" data-panel="dashboard">📊 Dashboard</div>
+    <div class="nav-tab" data-panel="income">💼 Income Heads</div>
+    <div class="nav-tab" data-panel="deductions">🧾 Deductions</div>
+    <div class="nav-tab" data-panel="hra">🏠 HRA Calculator</div>
+    <div class="nav-tab" data-panel="capital">📈 Capital Gains</div>
+    <div class="nav-tab" data-panel="computation">🔢 Tax Computation</div>
+    <div class="nav-tab" data-panel="comparison">⚖️ Regime Comparison</div>
+    <div class="nav-tab" data-panel="report">📄 Tax Report</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="card">
+        <div class="card-title">Taxpayer Profile</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="tp-name" value="Raghavendra Kumar" placeholder="Enter full name" oninput="updateDashboard()">
+          </div>
+          <div class="form-group">
+            <label>PAN</label>
+            <input type="text" id="tp-pan" value="ABCPK1234Z" placeholder="e.g. ABCPK1234Z" maxlength="10" style="text-transform:uppercase" oninput="validatePAN(this)">
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" id="tp-dob" value="1980-06-15" onchange="checkAge()">
+          </div>
+          <div class="form-group">
+            <label>Residential Status</label>
+            <select id="tp-status" onchange="computeTax()">
+              <option value="resident">Resident Indian</option>
+              <option value="nri">Non-Resident (NRI)</option>
+              <option value="rnor">RNOR</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tax Year</label>
+            <select id="tp-taxyear">
+              <option value="2026-27">Tax Year 2026-27</option>
+              <option value="2025-26">Tax Year 2025-26</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="tp-category" onchange="computeTax()">
+              <option value="individual">Individual (Below 60)</option>
+              <option value="senior">Senior Citizen (60-80)</option>
+              <option value="supersenior">Super Senior (Above 80)</option>
+            </select>
+          </div>
+        </div>
+        <div id="pan-status" style="margin-top:8px; font-size:12px;"></div>
+      </div>
+
+      <div class="summary-grid" id="summaryWidgets">
+        <div class="widget">
+          <div class="widget-label">Gross Total Income</div>
+          <div class="widget-value gold" id="w-gti">₹0</div>
+          <div class="widget-sub">Before deductions</div>
+        </div>
+        <div class="widget">
+          <div class="widget-label">Total Deductions</div>
+          <div class="widget-value" id="w-ded">₹0</div>
+          <div class="widget-sub">Under Chapter VIA</div>
+        </div>
+        <div class="widget">
+          <div class="widget-label">Taxable Income</div>
+          <div class="widget-value" id="w-taxable">₹0</div>
+          <div class="widget-sub">After deductions</div>
+        </div>
+        <div class="widget">
+          <div class="widget-label">Tax Payable (New)</div>
+          <div class="widget-value red" id="w-tax-new">₹0</div>
+          <div class="widget-sub">New regime</div>
+        </div>
+        <div class="widget">
+          <div class="widget-label">Tax Payable (Old)</div>
+          <div class="widget-value" id="w-tax-old">₹0</div>
+          <div class="widget-sub">Old regime</div>
+        </div>
+        <div class="widget">
+          <div class="widget-label">Best Regime Saving</div>
+          <div class="widget-value green" id="w-saving">₹0</div>
+          <div class="widget-sub" id="w-regime-rec">—</div>
+        </div>
+      </div>
+
+      <div id="rec-panel"></div>
+    </div>
+
+    <!-- INCOME HEADS -->
+    <div class="panel" id="panel-income">
+      <div class="card">
+        <div class="card-title">A. Income from Employment (Salary)</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Basic Salary (₹)</label><input type="number" id="i-basic" value="800000" oninput="computeTax()"></div>
+          <div class="form-group"><label>Dearness Allowance (₹)</label><input type="number" id="i-da" value="0" oninput="computeTax()"></div>
+          <div class="form-group"><label>HRA Received (₹)</label><input type="number" id="i-hra-rcvd" value="240000" oninput="computeTax(); syncHRA()"></div>
+          <div class="form-group"><label>Special / Other Allowances (₹)</label><input type="number" id="i-other-allow" value="60000" oninput="computeTax()"></div>
+          <div class="form-group"><label>Bonus / Incentives (₹)</label><input type="number" id="i-bonus" value="50000" oninput="computeTax()"></div>
+          <div class="form-group"><label>LTA (Leave Travel Allowance ₹)</label><input type="number" id="i-lta" value="0" oninput="computeTax()"></div>
+          <div class="form-group"><label>Perquisites (₹)</label><input type="number" id="i-perq" value="0" oninput="computeTax()"></div>
+          <div class="form-group"><label>Professional Tax (₹)</label><input type="number" id="i-proftax" value="2400" oninput="computeTax()"></div>
+          <div class="form-group"><label>Employer PF Contribution above ₹7.5L (₹)</label><input type="number" id="i-empf" value="0" oninput="computeTax()"></div>
+        </div>
+        <div style="margin-top:1rem; padding:0.75rem; background:var(--grey-bg); border-radius:8px; font-size:12px; color:var(--text-muted);">
+          Standard deduction of ₹75,000 (New Regime) / ₹50,000 (Old Regime) auto-applied under Sec 16.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">B. Income from House Property</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Annual Letting Value (₹)</label><input type="number" id="i-alv" value="0" oninput="computeTax()"></div>
+          <div class="form-group"><label>Municipal Taxes Paid (₹)</label><input type="number" id="i-muni" value="0" oninput="computeTax()"></div>
+          <div class="form-group"><label>Home Loan Interest — Self-Occupied (₹)</label><input type="number" id="i-hli-so" value="0" oninput="computeTax()"><span class="hint">Max ₹2,00,000 u/s 24(b)</span></div>
+          <div class="form-group"><label>Home Loan Interest — Let-Out (₹)</label><input type="number" id="i-hli-lo" value="0" oninput="computeTax()"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">E. Income from Other Sources</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Bank / FD Interest (₹)</label><input type="number" id="i-fd" value="20000" oninput="computeTax()"></div>
+          <div class="form-group"><label>Savings Account Interest (₹)</label><input type="number" id="i-savings" value="8000" oninput="computeTax()"></div>
+          <div class="form-group"><label>Dividend Income (₹)</label><input type="number" id="i-div" value="0" oninput="computeTax()"></div>
+          <div class="form-group"><label>Family Pension (₹)</label><input type="number" id="i-fpension" value="0" oninput="computeTax()"></div>
+          <div class="form-group"><label>Other Income (₹)</label><input type="number" id="i-other" value="0" oninput="computeTax()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEDUCTIONS -->
+    <div class="panel" id="panel-deductions">
+      <div class="card">
+        <div class="card-title">Chapter VI-A Deductions (Old Regime only)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>80C — LIC, PPF, ELSS, PF, etc. (₹)</label>
+            <input type="number" id="d-80c" value="150000" oninput="updateDeductionBar('80c',150000); computeTax()">
+            <div class="deduction-bar"><div class="deduction-fill" id="bar-80c" style="width:100%"></div></div>
+            <span class="hint">Max: ₹1,50,000</span>
+          </div>
+          <div class="form-group">
+            <label>80CCD(1B) — NPS Self Contribution (₹)</label>
+            <input type="number" id="d-nps1b" value="50000" oninput="updateDeductionBar('nps1b',50000); computeTax()">
+            <div class="deduction-bar"><div class="deduction-fill" id="bar-nps1b"></div></div>
+            <span class="hint">Max: ₹50,000</span>
+          </div>
+          <div class="form-group">
+            <label>80CCD(2) — Employer NPS (₹)</label>
+            <input type="number" id="d-nps2" value="0" oninput="computeTax()">
+            <span class="hint">Max: 14% of salary (Allowed in New Regime too)</span>
+          </div>
+          <div class="form-group">
+            <label>80D — Medical Insurance (₹)</label>
+            <input type="number" id="d-80d" value="25000" oninput="updateDeductionBar('80d',25000); computeTax()">
+            <div class="deduction-bar"><div class="deduction-fill" id="bar-80d"></div></div>
+            <span class="hint">Self/Family: ₹25,000 | Senior parents: ₹50,000</span>
+          </div>
+          <div class="form-group">
+            <label>80E — Education Loan Interest (₹)</label>
+            <input type="number" id="d-80e" value="0" oninput="computeTax()">
+          </div>
+          <div class="form-group">
+            <label>80EEA — Housing Loan Interest (₹)</label>
+            <input type="number" id="d-80eea" value="0" oninput="computeTax()">
+            <span class="hint">Max: ₹1,50,000 (first-time buyers)</span>
+          </div>
+          <div class="form-group">
+            <label>80G — Donations (₹)</label>
+            <input type="number" id="d-80g" value="0" oninput="computeTax()">
+          </div>
+          <div class="form-group">
+            <label>80TTA — Savings Interest (₹)</label>
+            <input type="number" id="d-80tta" value="8000" oninput="updateDeductionBar('80tta',10000); computeTax()">
+            <div class="deduction-bar"><div class="deduction-fill" id="bar-80tta"></div></div>
+            <span class="hint">Max: ₹10,000</span>
+          </div>
+          <div class="form-group">
+            <label>80DD — Disabled Dependent (₹)</label>
+            <input type="number" id="d-80dd" value="0" oninput="computeTax()">
+            <span class="hint">₹75,000 or ₹1,25,000 (severe)</span>
+          </div>
+          <div class="form-group">
+            <label>80GG — Rent Paid (no HRA) (₹)</label>
+            <input type="number" id="d-80gg" value="0" oninput="computeTax()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HRA -->
+    <div class="panel" id="panel-hra">
+      <div class="card">
+        <div class="card-title">HRA Exemption Calculator — Section 10(13A)</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Basic Salary (₹/year)</label><input type="number" id="h-basic" value="800000" oninput="calcHRA()"></div>
+          <div class="form-group"><label>Dearness Allowance (₹/year)</label><input type="number" id="h-da" value="0" oninput="calcHRA()"></div>
+          <div class="form-group"><label>HRA Received from Employer (₹/year)</label><input type="number" id="h-hra" value="240000" oninput="calcHRA()"></div>
+          <div class="form-group"><label>Annual Rent Paid (₹/year)</label><input type="number" id="h-rent" value="300000" oninput="calcHRA()"></div>
+          <div class="form-group">
+            <label>City Type</label>
+            <select id="h-city" onchange="calcHRA()">
+              <option value="metro">Metro City (50% — Delhi, Mumbai, Kolkata, Chennai)</option>
+              <option value="nonmetro">Non-Metro (40%)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="hra-output"></div>
+    </div>
+
+    <!-- CAPITAL GAINS -->
+    <div class="panel" id="panel-capital">
+      <div class="card">
+        <div class="card-title">Capital Gains Income</div>
+        <div class="form-grid">
+          <div class="form-group"><label>STCG — Listed Equity/Equity MF u/s 111A (₹)</label><input type="number" id="cg-stcg-eq" value="0" oninput="computeTax()"><span class="hint">Taxed @ 20% (effective TY2026-27)</span></div>
+          <div class="form-group"><label>STCG — Other Assets (₹)</label><input type="number" id="cg-stcg-other" value="0" oninput="computeTax()"><span class="hint">Taxed at slab rate</span></div>
+          <div class="form-group"><label>LTCG — Listed Equity/MF u/s 112A (₹)</label><input type="number" id="cg-ltcg-eq" value="0" oninput="computeTax()"><span class="hint">Taxed @ 12.5% on amount above ₹1.25L</span></div>
+          <div class="form-group"><label>LTCG — Other Assets u/s 112 (₹)</label><input type="number" id="cg-ltcg-other" value="0" oninput="computeTax()"><span class="hint">Taxed @ 12.5% without indexation</span></div>
+        </div>
+        <div style="margin-top:1rem; padding:0.75rem; background:#fff8e8; border-radius:8px; font-size:12px; color:#7a5c00;">
+          <strong>Note:</strong> As per Finance (No.2) Act 2024 & Income Tax Act 2025: STCG on equity at 20%, LTCG on equity at 12.5% (exemption ₹1.25L p.a.). LTCG on other assets at 12.5% without indexation for transfers post 23 July 2024.
+        </div>
+      </div>
+    </div>
+
+    <!-- TAX COMPUTATION -->
+    <div class="panel" id="panel-computation">
+      <div id="computation-output"></div>
+    </div>
+
+    <!-- REGIME COMPARISON -->
+    <div class="panel" id="panel-comparison">
+      <div id="comparison-output"></div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="panel" id="panel-report">
+      <div class="report-header">
+        <div>
+          <div style="font-size:22px; font-weight:700; font-family:Georgia,serif;">EKR and Associates</div>
+          <div style="font-size:12px; color:rgba(255,255,255,0.65); margin-top:4px;">Chartered Accountants</div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:3px;">1 (Old No.17), 3rd Floor, A1 Arcade, 33rd A Cross, 11th Main Rd, 4th T Block East, Jayanagar, Bengaluru, Karnataka 560041 | Ph: 9964767276</div>
+        </div>
+        <div class="report-meta">
+          <div><strong>INCOME TAX COMPUTATION</strong></div>
+          <div id="rpt-taxyear" style="margin-top:4px;"></div>
+          <div id="rpt-date" style="margin-top:2px;"></div>
+          <div style="margin-top:8px; padding:5px 14px; background:rgba(201,162,39,0.2); border-radius:20px; font-size:11px; color:var(--gold-light); border:1px solid rgba(201,162,39,0.4);">Income Tax Act, 2025</div>
+        </div>
+      </div>
+      <div id="report-output"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print Report</button>
+        <button class="btn btn-gold" onclick="sendPrompt('Generate a detailed tax planning advice based on the current inputs with investment recommendations to minimise tax for Tax Year 2026-27')">💡 AI Tax Planning Advice ↗</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const fmtN = n => Math.round(n).toLocaleString('en-IN');
+let chartInstance = null;
+let compChartInstance = null;
+
+function v(id){ return parseFloat(document.getElementById(id)?.value)||0; }
+function el(id){ return document.getElementById(id); }
+
+function validatePAN(input){
+  input.value = input.value.toUpperCase();
+  const pan = input.value;
+  const ok = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan);
+  const st = el('pan-status');
+  if(pan.length===10){ st.innerHTML = ok ? '<span style="color:var(--green)">✓ Valid PAN format</span>' : '<span style="color:var(--red)">✗ Invalid PAN format</span>'; }
+  else { st.innerHTML=''; }
+}
+
+function checkAge(){
+  const dob = el('tp-dob').value;
+  if(!dob) return;
+  const age = Math.floor((new Date('2026-04-01') - new Date(dob)) / 31557600000);
+  const cat = el('tp-category');
+  if(age >= 80) cat.value = 'supersenior';
+  else if(age >= 60) cat.value = 'senior';
+  else cat.value = 'individual';
+  computeTax();
+}
+
+function syncHRA(){
+  el('h-hra').value = el('i-hra-rcvd').value;
+  el('h-basic').value = el('i-basic').value;
+  calcHRA();
+}
+
+function updateDeductionBar(id, max){
+  const val = v('d-'+id) || v('d-80'+id) || v('d-'+id.replace('-',''));
+  const inp = document.querySelector('[id="d-'+id+'"], [id="d-80'+id+'"]');
+  const actual = inp ? parseFloat(inp.value)||0 : 0;
+  const pct = Math.min(100, (actual/max)*100);
+  const bar = el('bar-'+id);
+  if(bar){ bar.style.width = pct+'%'; bar.className = 'deduction-fill'+(pct>=100?' maxed':''); }
+}
+
+function getInputs(){
+  const basic = v('i-basic'), da = v('i-da');
+  const salaryComponents = basic + da + v('i-hra-rcvd') + v('i-other-allow') + v('i-bonus') + v('i-lta') + v('i-perq') + v('i-empf');
+  const profTax = Math.min(v('i-proftax'), 2500);
+
+  const hraExempt = calcHRAExempt(basic+da, v('i-hra-rcvd'), v('h-rent')||v('i-hra-rcvd'), el('h-city')?.value||'metro');
+
+  const grossSalaryOld = salaryComponents - hraExempt - profTax - 50000;
+  const grossSalaryNew = salaryComponents - hraExempt - profTax - 75000;
+
+  const nav = v('i-alv') - v('i-muni');
+  const hpStdDed = nav > 0 ? nav * 0.3 : 0;
+  const hliSO = Math.min(v('i-hli-so'), 200000);
+  const hpIncome = Math.max(nav - hpStdDed - hliSO - v('i-hli-lo'), -200000);
+
+  const stcgEq = v('cg-stcg-eq'), stcgOther = v('cg-stcg-other');
+  const ltcgEq = Math.max(0, v('cg-ltcg-eq') - 125000), ltcgOther = v('cg-ltcg-other');
+  const cgIncome = stcgOther;
+
+  const savingsInt = v('i-savings'), fdInt = v('i-fd'), div = v('i-div'), fpension = v('i-fpension'), other = v('i-other');
+  const fpensionNet = Math.max(0, fpension - Math.min(fpension * 0.333, 15000));
+  const ios = savingsInt + fdInt + div + fpensionNet + other;
+
+  const d80c = Math.min(v('d-80c'), 150000);
+  const d80ccd1b = Math.min(v('d-nps1b'), 50000);
+  const d80ccd2 = v('d-nps2');
+  const d80d = Math.min(v('d-80d'), 75000);
+  const d80e = v('d-80e');
+  const d80eea = Math.min(v('d-80eea'), 150000);
+  const d80g = v('d-80g') * 0.5;
+  const d80tta = Math.min(v('d-80tta'), 10000);
+  const d80dd = Math.min(v('d-80dd'), 125000);
+  const d80gg = v('d-80gg');
+
+  const totalOldDed = d80c + d80ccd1b + d80d + d80e + d80eea + d80g + d80tta + d80dd + d80gg;
+  const totalNewDed = d80ccd2;
+
+  const gtiOld = Math.max(0, grossSalaryOld) + Math.max(hpIncome, -200000) + cgIncome + ios;
+  const gtiNew = Math.max(0, grossSalaryNew) + Math.max(hpIncome, -200000) + cgIncome + ios;
+
+  const taxableOld = Math.max(0, gtiOld - totalOldDed - d80ccd2);
+  const taxableNew = Math.max(0, gtiNew - totalNewDed);
+
+  return {
+    basic, da, salaryComponents, profTax, hraExempt,
+    grossSalaryOld, grossSalaryNew,
+    hpIncome, cgIncome, ios,
+    stcgEq, stcgOther, ltcgEq, ltcgOther,
+    d80c, d80ccd1b, d80ccd2, d80d, d80e, d80eea, d80g, d80tta, d80dd, d80gg,
+    totalOldDed, totalNewDed,
+    gtiOld, gtiNew, taxableOld, taxableNew,
+    savingsInt, fdInt, div, fpension, fpensionNet, other,
+    nav, hpStdDed, hliSO
+  };
+}
+
+function calcSlabTax(income, slabs){
+  let tax = 0, prev = 0;
+  for(const [limit, rate] of slabs){
+    if(income <= 0) break;
+    const chunk = limit === Infinity ? income : Math.min(income, limit - prev);
+    tax += Math.max(0, chunk) * rate;
+    income -= chunk;
+    prev = limit;
+  }
+  return tax;
+}
+
+const OLD_SLABS = [
+  [250000, 0], [500000, 0.05], [1000000, 0.2], [Infinity, 0.3]
+];
+const OLD_SLABS_SR = [
+  [300000, 0], [500000, 0.05], [1000000, 0.2], [Infinity, 0.3]
+];
+const OLD_SLABS_SSR = [
+  [500000, 0], [1000000, 0.2], [Infinity, 0.3]
+];
+const NEW_SLABS = [
+  [400000, 0], [800000, 0.05], [1200000, 0.1], [1600000, 0.15], [2000000, 0.2], [2400000, 0.25], [Infinity, 0.3]
+];
+
+function computeSlabTax(income, regime, category){
+  if(regime === 'old'){
+    if(category === 'supersenior') return calcSlabTax(income, OLD_SLABS_SSR);
+    if(category === 'senior') return calcSlabTax(income, OLD_SLABS_SR);
+    return calcSlabTax(income, OLD_SLABS);
+  }
+  return calcSlabTax(income, NEW_SLABS);
+}
+
+function applySurcharge(tax, income){
+  let sc = 0;
+  if(income > 50000000) sc = tax * 0.37;
+  else if(income > 20000000) sc = tax * 0.25;
+  else if(income > 10000000) sc = tax * 0.15;
+  else if(income > 5000000) sc = tax * 0.10;
+  return sc;
+}
+
+function marginalRelief(tax, sc, income, threshold){
+  const excessIncome = income - threshold;
+  const excessTax = tax + sc;
+  if(excessTax > excessIncome){ return excessTax - excessIncome; }
+  return 0;
+}
+
+function computeFullTax(taxableIncome, regime, category, cgInputs){
+  const { stcgEq, ltcgEq, ltcgOther, stcgOther } = cgInputs;
+  const normalIncome = taxableIncome;
+
+  let normalTax = computeSlabTax(normalIncome, regime, category);
+
+  const stcgEqTax = stcgEq * 0.20;
+  const ltcgEqTax = ltcgEq * 0.125;
+  const ltcgOtherTax = ltcgOther * 0.125;
+
+  const totalBeforeSC = normalTax + stcgEqTax + ltcgEqTax + ltcgOtherTax;
+  const totalIncome = taxableIncome + stcgEq + (v('cg-ltcg-eq')) + ltcgOther;
+
+  const sc = applySurcharge(totalBeforeSC, totalIncome);
+  const rebate = (regime==='new' && taxableIncome<=1200000) ? Math.min(normalTax, 60000) :
+                 (regime==='old' && taxableIncome<=500000) ? Math.min(normalTax, 12500) : 0;
+
+  let taxAfterRebate = Math.max(0, totalBeforeSC - rebate);
+  const cess = taxAfterRebate * 0.04;
+  const total = taxAfterRebate + cess;
+
+  return { normalTax, stcgEqTax, ltcgEqTax, ltcgOtherTax, rebate, sc, cess, total, totalBeforeSC };
+}
+
+function computeTax(){
+  const inp = getInputs();
+  const cat = el('tp-category')?.value || 'individual';
+  const cgInputs = { stcgEq: inp.stcgEq, ltcgEq: inp.ltcgEq, ltcgOther: inp.ltcgOther, stcgOther: inp.stcgOther };
+
+  const oldTax = computeFullTax(inp.taxableOld, 'old', cat, cgInputs);
+  const newTax = computeFullTax(inp.taxableNew, 'new', cat, cgInputs);
+
+  const saving = Math.abs(oldTax.total - newTax.total);
+  const bestRegime = newTax.total <= oldTax.total ? 'New' : 'Old';
+
+  el('w-gti').textContent = fmt(Math.max(inp.gtiOld, inp.gtiNew));
+  el('w-ded').textContent = fmt(inp.totalOldDed + inp.d80ccd2);
+  el('w-taxable').textContent = fmt(inp.taxableNew);
+  el('w-tax-new').textContent = fmt(newTax.total);
+  el('w-tax-old').textContent = fmt(oldTax.total);
+  el('w-saving').textContent = fmt(saving);
+  el('w-regime-rec').textContent = 'Opt for ' + bestRegime + ' Regime';
+
+  const recPanel = el('rec-panel');
+  const isNew = bestRegime === 'New';
+  recPanel.innerHTML = `<div class="rec-box ${isNew?'new':'old'}">
+    <div class="rec-icon">${isNew?'✅':'🏆'}</div>
+    <div>
+      <div class="rec-title">Recommended Regime: ${bestRegime} Regime</div>
+      <div class="rec-saving">${fmt(saving)} saved</div>
+      <div class="rec-note">Tax under New Regime: ${fmt(newTax.total)} &nbsp;|&nbsp; Tax under Old Regime: ${fmt(oldTax.total)}<br>
+      Effective rate (New): ${inp.taxableNew > 0 ? ((newTax.total/inp.taxableNew)*100).toFixed(2) : '0.00'}% &nbsp;|&nbsp; (Old): ${inp.taxableOld > 0 ? ((oldTax.total/inp.taxableOld)*100).toFixed(2) : '0.00'}%</div>
+    </div>
+  </div>`;
+
+  renderComputation(inp, oldTax, newTax, cat);
+  renderComparison(inp, oldTax, newTax);
+  renderReport(inp, oldTax, newTax);
+}
+
+function renderComputation(inp, oldTax, newTax, cat){
+  const out = el('computation-output');
+  if(!out) return;
+  out.innerHTML = `
+  <div class="card">
+    <div class="card-title">Income Summary — Tax Year 2026-27</div>
+    <table class="comp-table">
+      <tr class="section-row"><td colspan="3">A. Income from Employment</td></tr>
+      <tr><td>Gross Salary</td><td class="right">${fmt(inp.salaryComponents)}</td><td class="right">${fmt(inp.salaryComponents)}</td></tr>
+      <tr><td>Less: HRA Exemption u/s 10(13A)</td><td class="right">(${fmt(inp.hraExempt)})</td><td class="right">(${fmt(inp.hraExempt)})</td></tr>
+      <tr><td>Less: Standard Deduction u/s 16(ia)</td><td class="right">(₹50,000)</td><td class="right">(₹75,000)</td></tr>
+      <tr><td>Less: Professional Tax u/s 16(iii)</td><td class="right">(${fmt(inp.profTax)})</td><td class="right">(${fmt(inp.profTax)})</td></tr>
+      <tr><td><b>Net Income from Salary</b></td><td class="right amt"><b>${fmt(Math.max(0,inp.grossSalaryOld))}</b></td><td class="right amt"><b>${fmt(Math.max(0,inp.grossSalaryNew))}</b></td></tr>
+      <tr class="section-row"><td colspan="3">B. Income from House Property</td></tr>
+      <tr><td>Net Annual Value</td><td class="right">${fmt(inp.nav)}</td><td class="right">${fmt(inp.nav)}</td></tr>
+      <tr><td>Less: Standard Deduction (30%)</td><td class="right">(${fmt(inp.hpStdDed)})</td><td class="right">(${fmt(inp.hpStdDed)})</td></tr>
+      <tr><td>Less: Interest on Home Loan u/s 24(b)</td><td class="right">(${fmt(inp.hliSO)})</td><td class="right">(${fmt(inp.hliSO)})</td></tr>
+      <tr><td><b>Net HP Income</b></td><td class="right amt"><b>${fmt(inp.hpIncome)}</b></td><td class="right amt"><b>${fmt(inp.hpIncome)}</b></td></tr>
+      <tr class="section-row"><td colspan="3">D. Capital Gains</td></tr>
+      <tr><td>STCG — Equity (20% u/s 111A)</td><td class="right">${fmt(inp.stcgEq)}</td><td class="right">${fmt(inp.stcgEq)}</td></tr>
+      <tr><td>LTCG — Equity above ₹1.25L (12.5% u/s 112A)</td><td class="right">${fmt(inp.ltcgEq)}</td><td class="right">${fmt(inp.ltcgEq)}</td></tr>
+      <tr><td>LTCG — Other assets (12.5% u/s 112)</td><td class="right">${fmt(inp.ltcgOther)}</td><td class="right">${fmt(inp.ltcgOther)}</td></tr>
+      <tr class="section-row"><td colspan="3">E. Income from Other Sources</td></tr>
+      <tr><td>Bank/FD Interest</td><td class="right">${fmt(inp.fdInt)}</td><td class="right">${fmt(inp.fdInt)}</td></tr>
+      <tr><td>Savings Account Interest</td><td class="right">${fmt(inp.savingsInt)}</td><td class="right">${fmt(inp.savingsInt)}</td></tr>
+      <tr><td>Other Income</td><td class="right">${fmt(inp.other+inp.div+inp.fpensionNet)}</td><td class="right">${fmt(inp.other+inp.div+inp.fpensionNet)}</td></tr>
+      <tr class="total-row"><td>GROSS TOTAL INCOME</td><td class="right">${fmt(inp.gtiOld)}</td><td class="right">${fmt(inp.gtiNew)}</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Tax Computation — Slab-wise Breakup</div>
+    <table class="comp-table">
+      <thead><tr><th>Particulars</th><th>Old Regime</th><th>New Regime</th></tr></thead>
+      <tbody>
+      <tr class="section-row"><td colspan="3">Deductions under Chapter VI-A</td></tr>
+      <tr><td>80C (LIC, PPF, ELSS, PF)</td><td class="right">${fmt(inp.d80c)}</td><td class="right">—</td></tr>
+      <tr><td>80CCD(1B) — NPS Self</td><td class="right">${fmt(inp.d80ccd1b)}</td><td class="right">—</td></tr>
+      <tr><td>80CCD(2) — Employer NPS</td><td class="right">${fmt(inp.d80ccd2)}</td><td class="right">${fmt(inp.d80ccd2)}</td></tr>
+      <tr><td>80D — Medical Insurance</td><td class="right">${fmt(inp.d80d)}</td><td class="right">—</td></tr>
+      <tr><td>80TTA — Savings Interest</td><td class="right">${fmt(inp.d80tta)}</td><td class="right">—</td></tr>
+      <tr><td>Other Deductions (80E, 80G, 80DD, 80GG, 80EEA)</td><td class="right">${fmt(inp.d80e+inp.d80g+inp.d80dd+inp.d80gg+inp.d80eea)}</td><td class="right">—</td></tr>
+      <tr class="total-row"><td>Total Deductions</td><td class="right">${fmt(inp.totalOldDed+inp.d80ccd2)}</td><td class="right">${fmt(inp.d80ccd2)}</td></tr>
+      <tr><td><b>Taxable Income</b></td><td class="right"><b>${fmt(inp.taxableOld)}</b></td><td class="right"><b>${fmt(inp.taxableNew)}</b></td></tr>
+      <tr class="section-row"><td colspan="3">Tax Computation</td></tr>
+      <tr><td>Normal Income Tax (slab)</td><td class="right">${fmt(oldTax.normalTax)}</td><td class="right">${fmt(newTax.normalTax)}</td></tr>
+      <tr><td>Tax on STCG — Equity @ 20%</td><td class="right">${fmt(oldTax.stcgEqTax)}</td><td class="right">${fmt(newTax.stcgEqTax)}</td></tr>
+      <tr><td>Tax on LTCG — Equity @ 12.5%</td><td class="right">${fmt(oldTax.ltcgEqTax)}</td><td class="right">${fmt(newTax.ltcgEqTax)}</td></tr>
+      <tr><td>Tax on LTCG — Others @ 12.5%</td><td class="right">${fmt(oldTax.ltcgOtherTax)}</td><td class="right">${fmt(newTax.ltcgOtherTax)}</td></tr>
+      <tr><td>Surcharge</td><td class="right">${fmt(oldTax.sc)}</td><td class="right">${fmt(newTax.sc)}</td></tr>
+      <tr><td>Less: Rebate u/s 87A</td><td class="right">(${fmt(oldTax.rebate)})</td><td class="right">(${fmt(newTax.rebate)})</td></tr>
+      <tr><td>Health & Education Cess @ 4%</td><td class="right">${fmt(oldTax.cess)}</td><td class="right">${fmt(newTax.cess)}</td></tr>
+      <tr class="total-row"><td>TOTAL TAX PAYABLE</td><td class="right">${fmt(oldTax.total)}</td><td class="right">${fmt(newTax.total)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Tax Slab Reference — Tax Year 2026-27</div>
+    <div class="slab-section">
+      <div>
+        <div style="font-size:12px; font-weight:600; color:var(--navy); margin-bottom:8px;">Old Regime Slabs</div>
+        <table class="slab-table">
+          <thead><tr><th>Income Slab</th><th>Rate</th></tr></thead>
+          <tbody>
+            <tr${inp.taxableOld>0&&inp.taxableOld<=250000?' class="active-slab"':''}><td>Upto ₹2,50,000</td><td>Nil</td></tr>
+            <tr${inp.taxableOld>250000&&inp.taxableOld<=500000?' class="active-slab"':''}><td>₹2,50,001 – ₹5,00,000</td><td>5%</td></tr>
+            <tr${inp.taxableOld>500000&&inp.taxableOld<=1000000?' class="active-slab"':''}><td>₹5,00,001 – ₹10,00,000</td><td>20%</td></tr>
+            <tr${inp.taxableOld>1000000?' class="active-slab"':''}><td>Above ₹10,00,000</td><td>30%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:12px; font-weight:600; color:var(--navy); margin-bottom:8px;">New Regime Slabs (Default u/s 115BAC)</div>
+        <table class="slab-table">
+          <thead><tr><th>Income Slab</th><th>Rate</th></tr></thead>
+          <tbody>
+            <tr${inp.taxableNew<=400000?' class="active-slab"':''}><td>Upto ₹4,00,000</td><td>Nil</td></tr>
+            <tr${inp.taxableNew>400000&&inp.taxableNew<=800000?' class="active-slab"':''}><td>₹4,00,001 – ₹8,00,000</td><td>5%</td></tr>
+            <tr${inp.taxableNew>800000&&inp.taxableNew<=1200000?' class="active-slab"':''}><td>₹8,00,001 – ₹12,00,000</td><td>10%</td></tr>
+            <tr${inp.taxableNew>1200000&&inp.taxableNew<=1600000?' class="active-slab"':''}><td>₹12,00,001 – ₹16,00,000</td><td>15%</td></tr>
+            <tr${inp.taxableNew>1600000&&inp.taxableNew<=2000000?' class="active-slab"':''}><td>₹16,00,001 – ₹20,00,000</td><td>20%</td></tr>
+            <tr${inp.taxableNew>2000000&&inp.taxableNew<=2400000?' class="active-slab"':''}><td>₹20,00,001 – ₹24,00,000</td><td>25%</td></tr>
+            <tr${inp.taxableNew>2400000?' class="active-slab"':''}><td>Above ₹24,00,000</td><td>30%</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">Rebate u/s 87A: Full rebate upto ₹12,00,000 taxable income (max ₹60,000)</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderComparison(inp, oldTax, newTax){
+  const out = el('comparison-output');
+  if(!out) return;
+  const saving = Math.abs(oldTax.total - newTax.total);
+  const bestNew = newTax.total <= oldTax.total;
+  const effOld = inp.taxableOld > 0 ? ((oldTax.total/inp.taxableOld)*100).toFixed(2) : '0.00';
+  const effNew = inp.taxableNew > 0 ? ((newTax.total/inp.taxableNew)*100).toFixed(2) : '0.00';
+
+  out.innerHTML = `
+  <div class="rec-box ${bestNew?'new':'old'}" style="margin-bottom:1.25rem;">
+    <div class="rec-icon" style="font-size:32px;">${bestNew?'🏅':'🥇'}</div>
+    <div>
+      <div class="rec-title" style="font-size:16px;">Recommended: ${bestNew?'New':'Old'} Regime</div>
+      <div class="rec-saving">Save ${fmt(saving)} in Tax Year 2026-27</div>
+      <div class="rec-note">By opting for the ${bestNew?'New':'Old'} regime, you save ${fmt(saving)} in taxes. Effective tax rate: ${bestNew?effNew:effOld}%</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Side-by-Side Regime Comparison</div>
+    <table class="comp-table">
+      <thead><tr><th>Particulars</th><th>Old Regime</th><th>New Regime</th><th>Difference</th></tr></thead>
+      <tbody>
+      <tr><td>Standard Deduction</td><td class="right">₹50,000</td><td class="right">₹75,000</td><td class="right better">+₹25,000</td></tr>
+      <tr><td>Chapter VI-A Deductions</td><td class="right">${fmt(inp.totalOldDed)}</td><td class="right">Nil</td><td class="right ${inp.totalOldDed>0?'better':''}">${fmt(inp.totalOldDed)}</td></tr>
+      <tr><td>Taxable Income</td><td class="right">${fmt(inp.taxableOld)}</td><td class="right">${fmt(inp.taxableNew)}</td><td class="right">${fmt(inp.taxableOld - inp.taxableNew)}</td></tr>
+      <tr><td>Normal Slab Tax</td><td class="right">${fmt(oldTax.normalTax)}</td><td class="right">${fmt(newTax.normalTax)}</td><td class="right ${oldTax.normalTax>=newTax.normalTax?'better':'worse'}">${fmt(oldTax.normalTax-newTax.normalTax)}</td></tr>
+      <tr><td>Capital Gains Tax</td><td class="right">${fmt(oldTax.stcgEqTax+oldTax.ltcgEqTax+oldTax.ltcgOtherTax)}</td><td class="right">${fmt(newTax.stcgEqTax+newTax.ltcgEqTax+newTax.ltcgOtherTax)}</td><td class="right">—</td></tr>
+      <tr><td>Rebate u/s 87A</td><td class="right">(${fmt(oldTax.rebate)})</td><td class="right">(${fmt(newTax.rebate)})</td><td></td></tr>
+      <tr><td>Surcharge</td><td class="right">${fmt(oldTax.sc)}</td><td class="right">${fmt(newTax.sc)}</td><td></td></tr>
+      <tr><td>H&E Cess @ 4%</td><td class="right">${fmt(oldTax.cess)}</td><td class="right">${fmt(newTax.cess)}</td><td></td></tr>
+      <tr class="total-row"><td>TOTAL TAX PAYABLE</td><td class="right">${fmt(oldTax.total)}</td><td class="right">${fmt(newTax.total)}</td><td class="right ${bestNew?'better':'worse'}">${fmt(oldTax.total-newTax.total)}</td></tr>
+      <tr><td>Effective Tax Rate</td><td class="right">${effOld}%</td><td class="right">${effNew}%</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Tax Payable — Visual Comparison</div>
+    <div style="position:relative; height:260px; margin-top:0.5rem;">
+      <canvas id="compChart" role="img" aria-label="Bar chart comparing old vs new regime tax payable">Old: ${fmt(oldTax.total)}, New: ${fmt(newTax.total)}</canvas>
+    </div>
+  </div>`;
+
+  setTimeout(()=>{
+    const ctx = el('compChart');
+    if(!ctx) return;
+    if(compChartInstance) compChartInstance.destroy();
+    compChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Old Regime', 'New Regime'],
+        datasets: [{
+          label: 'Tax Payable (₹)',
+          data: [Math.round(oldTax.total), Math.round(newTax.total)],
+          backgroundColor: ['#1a2744','#c9a227'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { ticks: { callback: v => '₹'+v.toLocaleString('en-IN') } }
+        }
+      }
+    });
+  }, 100);
+}
+
+function renderReport(inp, oldTax, newTax){
+  const out = el('report-output');
+  if(!out) return;
+  const name = el('tp-name')?.value || '—';
+  const pan = el('tp-pan')?.value || '—';
+  const bestNew = newTax.total <= oldTax.total;
+  el('rpt-taxyear').innerHTML = '<strong>Tax Year 2026-27</strong>';
+  el('rpt-date').textContent = 'Date: ' + new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  out.innerHTML = `
+  <div class="card">
+    <table style="width:100%; font-size:13px;">
+      <tr><td style="width:50%; color:var(--text-muted);">Taxpayer Name</td><td><b>${name}</b></td></tr>
+      <tr><td style="color:var(--text-muted);">PAN</td><td>${pan}</td></tr>
+      <tr><td style="color:var(--text-muted);">Tax Year</td><td>2026-27 (under Income Tax Act, 2025)</td></tr>
+      <tr><td style="color:var(--text-muted);">Recommended Regime</td><td><span class="badge badge-green">${bestNew?'New Regime (Default)':'Old Regime'}</span></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Tax Computation Summary</div>
+    <table class="comp-table">
+      <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
+      <tbody>
+      <tr><td>Gross Total Income</td><td class="right">${fmt(bestNew?inp.gtiNew:inp.gtiOld)}</td></tr>
+      <tr><td>Less: Chapter VI-A Deductions</td><td class="right">(${fmt(bestNew?inp.d80ccd2:(inp.totalOldDed+inp.d80ccd2))})</td></tr>
+      <tr><td>Taxable Income</td><td class="right"><b>${fmt(bestNew?inp.taxableNew:inp.taxableOld)}</b></td></tr>
+      <tr><td>Tax on Normal Income</td><td class="right">${fmt(bestNew?newTax.normalTax:oldTax.normalTax)}</td></tr>
+      <tr><td>Tax on Capital Gains</td><td class="right">${fmt(bestNew?(newTax.stcgEqTax+newTax.ltcgEqTax+newTax.ltcgOtherTax):(oldTax.stcgEqTax+oldTax.ltcgEqTax+oldTax.ltcgOtherTax))}</td></tr>
+      <tr><td>Less: Rebate u/s 87A</td><td class="right">(${fmt(bestNew?newTax.rebate:oldTax.rebate)})</td></tr>
+      <tr><td>Surcharge</td><td class="right">${fmt(bestNew?newTax.sc:oldTax.sc)}</td></tr>
+      <tr><td>Health & Education Cess @ 4%</td><td class="right">${fmt(bestNew?newTax.cess:oldTax.cess)}</td></tr>
+      <tr class="total-row"><td>TOTAL TAX PAYABLE</td><td class="right">${fmt(bestNew?newTax.total:oldTax.total)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top:2rem; border-top:1px solid var(--grey-border); padding-top:1rem; display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
+    <div>Prepared by: EKR and Associates, Chartered Accountants | Ph: 9964767276 | Jayanagar, Bengaluru – 560041</div>
+    <div>For: ${name} | Tax Year 2026-27 | Income Tax Act, 2025</div>
+  </div>
+  <div style="margin-top:1.5rem; display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); border-top:1px dashed var(--grey-border); padding-top:1rem;">
+    <div style="text-align:center; width:200px; border-top:1px solid var(--text-muted); padding-top:4px; margin-top:20px;">Signature of Taxpayer</div>
+    <div style="text-align:center; width:200px; border-top:1px solid var(--text-muted); padding-top:4px; margin-top:20px;">Authorised Signatory — EKR & Associates</div>
+  </div>`;
+}
+
+function calcHRAExempt(salaryForHRA, hraRcvd, rentPaid, city){
+  if(rentPaid === 0) return 0;
+  const pct = city === 'metro' ? 0.5 : 0.4;
+  const a = hraRcvd;
+  const b = rentPaid - (salaryForHRA * 0.1);
+  const c = salaryForHRA * pct;
+  return Math.max(0, Math.min(a, b, c));
+}
+
+function calcHRA(){
+  const basic = v('h-basic'), da = v('h-da');
+  const salary = basic + da;
+  const hra = v('h-hra'), rent = v('h-rent');
+  const city = el('h-city')?.value || 'metro';
+  const pct = city === 'metro' ? 0.5 : 0.4;
+  const a = hra;
+  const b = Math.max(0, rent - salary * 0.1);
+  const c = salary * pct;
+  const exempt = Math.max(0, Math.min(a, b, c));
+  const taxable = hra - exempt;
+
+  const out = el('hra-output');
+  if(!out) return;
+  out.innerHTML = `
+  <div class="card">
+    <div class="card-title">HRA Exemption Working — Section 10(13A)</div>
+    <div class="hra-result">
+      <div>
+        <div class="hra-row"><span>Salary for HRA (Basic + DA)</span><span class="amt">${fmt(salary)}</span></div>
+        <div class="hra-row"><span>HRA Received from Employer</span><span class="amt">${fmt(hra)}</span></div>
+        <div class="hra-row"><span>Annual Rent Paid</span><span class="amt">${fmt(rent)}</span></div>
+        <div class="hra-row"><span>City Type</span><span>${city==='metro'?'Metro (50%)':'Non-Metro (40%)'}</span></div>
+        <div style="height:1px; background:var(--grey-border); margin:1rem 0;"></div>
+        <div style="font-size:12px; font-weight:600; color:var(--navy); margin-bottom:8px;">Three-Way Minimum Test</div>
+        <div class="hra-row"><span>① Actual HRA received</span><span class="amt">${fmt(a)}</span></div>
+        <div class="hra-row"><span>② Rent paid less 10% of salary</span><span class="amt">${fmt(b)}</span></div>
+        <div class="hra-row"><span>③ ${pct*100}% of Salary (Basic+DA)</span><span class="amt">${fmt(c)}</span></div>
+        <div class="hra-row"><span><b>Eligible Exemption (Minimum of ①②③)</b></span><span class="hra-highlight">${fmt(exempt)}</span></div>
+        <div class="hra-row"><span><b>Taxable HRA</b></span><span style="color:var(--red); font-weight:700;">${fmt(taxable)}</span></div>
+      </div>
+      <div>
+        <div style="position:relative; height:200px;">
+          <canvas id="hraChart" role="img" aria-label="HRA comparison chart">Exempt: ${fmt(exempt)}, Taxable: ${fmt(taxable)}</canvas>
+        </div>
+        <div style="display:flex; gap:16px; margin-top:8px; font-size:12px; color:var(--text-muted);">
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#1a7a4a;display:inline-block;"></span>Exempt ${fmt(exempt)}</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#b91c1c;display:inline-block;"></span>Taxable ${fmt(taxable)}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  setTimeout(()=>{
+    const ctx = el('hraChart');
+    if(!ctx) return;
+    if(chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Exempt HRA','Taxable HRA'],
+        datasets: [{
+          data: [Math.round(exempt), Math.round(Math.max(0,taxable))],
+          backgroundColor: ['#1a7a4a','#b91c1c'],
+          borderWidth: 2, borderColor: '#fff'
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } }
+      }
+    });
+  }, 100);
+}
+
+function updateDashboard(){ /* just recompute */ computeTax(); }
+
+document.getElementById('navTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.nav-tab');
+  if(!tab) return;
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  tab.classList.add('active');
+  const panel = document.getElementById('panel-'+tab.dataset.panel);
+  if(panel) panel.classList.add('active');
+  if(tab.dataset.panel==='hra') calcHRA();
+});
+
+computeTax();
+calcHRA();
+</script>
+
+</body>
+</html>
